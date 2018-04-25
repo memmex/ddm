@@ -1,0 +1,48 @@
+/*** TIPS ***/
+
+.lights{
+	width: 60px;
+	height: 204px;
+	padding: 10px;
+	border-radius: 4px;
+	background: #232323;
+}
+
+.lights button.circle{
+	display: block;
+	margin: 6px 0px;
+	font-size: 27px; 
+}
+
+#tip2 sup, #tip2 sub{ font-size: 1em; }
+
+.lights button.dark{
+	color: #4E4E4E;
+	background-image: repeating-linear-gradient(45deg, transparent, transparent 1px, rgba(36,36,36,.5) 1px, rgba(36,36,36,.5) 2px);
+	background-image: url('./img/lights_bg.png');
+}
+.lights button.dark.green:disabled{
+	background-color: #309605;
+	box-shadow: inset 0px -2px #227400;
+}
+.lights button.dark.yellow:disabled,
+.lights button.dark.orange:disabled{
+	background-color: #C56C00;
+	box-shadow: inset 0px -2px #9B5500;
+}
+
+.lights button.dark.red:disabled{
+	background-color: #AD060A;
+	box-shadow: inset 0px -2px #850003;
+}
+
+#tipsOpener{
+ 	position: fixed;
+	width: 44px;
+	padding-right: 5px;
+	height: 44px;
+	top: 50px;
+	right: 2px;
+	z-index: 100;
+	background: url('./img/tip_button_11.png') no-repeat center center;
+}

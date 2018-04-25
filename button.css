@@ -1,0 +1,133 @@
+button{
+	display: inline-block;
+	text-align: center;
+	padding: 0.4em 1.5em;
+	min-width: 80px;
+	min-height: 40px;
+	line-height: 100%;
+	white-space: nowrap;
+	vertical-align: middle;
+	margin: 2px 4px;
+
+	font-family: 'Helvetica Neue', 'Arial', sans-serif;
+	font-size: inherit;
+	font-weight: bold;
+	color: #fff;
+	
+	border-radius: 4px;
+	border: 0px;
+	box-shadow: inset 0px -2px rgba(0,0,0,0.205);
+	-webkit-tap-highlight-color: transparent;
+
+	position: relative;
+}
+button::after{
+	content: '';
+	position: absolute;
+	top: -10px;
+	left: -10px;
+	right: -10px;
+	bottom: -10px;
+}
+
+button.circle{
+	min-width: 60px;
+	width: 60px;
+	height: 60px;
+	line-height: 56px;
+	padding: 2px;
+	margin: 4px;
+	font-size: 30px;
+	border-radius: 50%;
+	border-width: 0px;
+}
+
+button:enabled:active{
+	padding-top: 0.5em;
+	padding-bottom: 0.3em;
+	box-shadow: none;
+}
+button.circle:enabled:active{
+	padding-top: 4px;
+	padding-bottom: 0px;
+	box-shadow: none;
+}
+button.blue{
+	background-color: #0C5AA6;
+	box-shadow: inset 0px -2px #053664;
+}
+button.blue:active{
+	background-color: #306EAB;
+	box-shadow: inset 0px 2px #0C5AA6;
+}
+button.dark.blue{
+	background-color: #094580;
+	box-shadow: inset 0px -2px #053664;
+}
+button.dark.blue:active{
+	background-color: #0C5AA6;
+	box-shadow: inset 0px 2px #094580;
+}
+button.yellow,
+button.orange{
+	background-color: #FF8C00;
+	box-shadow: inset 0px -2px #C56C00;
+}
+button.yellow:active,
+button.orange:active{
+	background-color: #FFA639;
+	box-shadow: inset 0px 2px #FF8C00;
+}
+button.dark.yellow,
+button.dark.orange{
+	background-color: #C56C00;
+	box-shadow: inset 0px -2px #9B5500;
+}
+button.dark.yellow:active,
+button.dark.orange:active{
+	background-color: #FF8C00;
+	box-shadow: inset 0px 2px #C56C00;
+}
+button.green{
+	background-color: #43BA10;
+	box-shadow: inset 0px -2px #309605;
+}
+button.green:active{
+	background-color: #63CC35;
+	box-shadow: inset 0px 2px #43BA10;
+}
+button.dark.green{
+	background-color: #309605;
+	box-shadow: inset 0px -2px #227400;
+}
+button.dark.green:active{
+	background-color: #43BA10;
+	box-shadow: inset 0px 2px #309605;
+}
+button.red{
+	background-color: #D71318;
+	box-shadow: inset 0px -2px #AD060A;
+}
+button.red:active{
+	background-color: #EC3E42;
+	box-shadow: inset 0px 2px #D71318;
+}
+button.dark.red{
+	background-color: #AD060A;
+	box-shadow: inset 0px -2px #850003;
+}
+button.dark.red:active{
+	background-color: #D71318;
+	box-shadow: inset 0px -2px #AD060A;
+}
+button:disabled{ color: #E0E0E0; }
+button:disabled,
+button:disabled:active,
+button.grey{
+	background-color: #808080;
+	box-shadow: inset 0px -2px #4E4E4E;
+}
+button.grey:active{
+	background-color: #ACACAC;
+	box-shadow: inset 0px 2px #808080;
+}

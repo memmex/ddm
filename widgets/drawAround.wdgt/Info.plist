@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AllowNetworkAccess</key>
+	<true/>
+	<key>CFBundleIdentifier</key>
+	<string>edu.tum.ma.mark-circle.exercise</string>
+	<key>CFBundleName</key>
+	<string>drawAround</string>
+	<key>MainHTML</key>
+	<string>drawAround.html</string>
+	<key>Width</key>
+	<integer>1024</integer>
+	<key>Height</key>
+	<integer>768</integer>
+</dict>
+</plist>

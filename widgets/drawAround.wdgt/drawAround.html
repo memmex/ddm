@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Umkringeln</title>
+<link rel="stylesheet" href="katex/katex.min.css" />
+<link rel="stylesheet" href="widget.css" />
+<link rel="stylesheet" href="button.css" />
+<script src="katex/katex.min.js"></script>
+<script src="color.js"></script>
+<script src="CindyJS/Cindy.js"></script>
+<script src="cindyTeX/cindyTeX.js"></script>
+<script src="leitner.js"></script>
+<script src="DataManager.js"></script>
+<script src="widgetInfo/widgetInfo.js"></script>
+<style>
+body{
+	width: 1024px;
+	height: 768px;
+	position: fixed;
+	background: none;
+	text-align: left;
+}
+h1{
+	position: absolute;
+	width: 1024px;
+	text-align: center;
+	pointer-events: none;
+	font-size: 1.4em;
+}
+#CSCanvas{
+	position: fixed; 
+	background: url('./img/widget_back_10.png') 0 0/100% 100%;
+}
+
+#task{
+	color: #0C5AA6;
+}
+
+#btn_correct{
+	position: absolute;
+	right: 50px;
+	bottom: 50px;
+	width: 240px;
+}
+
+#resultmsg{
+	position: absolute;
+	width: 1024px;
+	text-align: center;
+	top: 155px;
+	display: none;
+}
+
+#resultmsg.right{
+	width: 345px;
+	right: 0px;
+	top: 50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%);
+}
+
+#cindyMyConsole{
+	position: absolute;
+	right: -340px;
+	top: 20px;
+	width: 300px;
+	font-family: monospace;
+	font-size: 9pt;
+}
+</style>
+
+</head>
+<body>
+<div id="widgetInfo">
+	<h3>Anteile umranden</h3>
+	<p>Umrande den angebenen Anteil der Objekte.</p>
+	<p>Du kannst deine Umrandung erweitern, in dem du in ihr neu zu zeichnen beginnst.</p>
+	<p>Um zu sehen, ob du die richtige Anzahl umrandet hast, tippe auf den orangen Knopf.</p>
+</div>
+<h1>Umrande <span id="task">xy</span> der <span id="what">Kreise</span>.</h1>
+<div id="resultmsg"></div>
+<canvas id="CSCanvas" width="1024" height="768"></canvas>
+<button id="btn_correct" class="orange">Stimmt das?</button>
+
+<script id="csinit" type="text/x-cindyscript">
+use("cindyTeX");
+
+use("leitner");
+use("DataManager");
+initDM("drawAround");
+initLeitner(1);
+//////////////////////////////////////////////////////////////////////
+canvas = screenbounds(); //LO, RO, RU, LU
+//////////////////////////////////////////////////////////////////////
+
+//reduce(list, func) := reduce(list_(2..length(list), func, list_1));
+//reduce(list, func, init) := (
+//	regional(value);
+//	value = init;
+//	repeat(length(list),
+//		value = func(value, list_#, #, list); 
+//	);
+//	value
+//);
+//
+//and(pV, cV, i, l) := pV & cV;
+//combines a list with logical AND
+AND(list) := (
+	regional(result);
+	result = true;
+	apply(list, result = result & #);
+	result
+);
+
+//combines a list with logical OR
+OR(list) := (
+	regional(result);
+	result = false;
+	apply(list, result = result % #);
+	result
+);
+
+//checks to list if the corresponding items are all <=/</=/>=/>
+compareAll(v, w, how) := (
+	regional(result);
+	//if(length(w) < length(v),...
+	result = true;
+	repeat(length(v),
+		result = result
+			& if(how == "<",  v_# <  w_#,
+			  if(how == "<=", v_# <= w_#,
+			  if(how == "==", v_# == w_#,
+			  if(how == ">=", v_# >= w_#,
+			  if(how == ">",  v_# >  w_#,
+			  )))));
+	);
+
+	result
+);
+//calculates the path length of a list of points
+strokeLength(stroke) := (
+	regional(l, last);
+	l = 0;
+	last = stroke_1;
+	forall(stroke,
+		l = l + |last, #|;
+		last = #;
+	);
+	l
+);
+//shuffles a list (using Fisher-Yates)
+shuffle(list) := (
+	regional(m, t, i);
+	m = length(list);
+
+	while(m > 0,
+		i = randomint(m) + 1;
+		
+		t = list_m;
+		list_m = list_i;
+		list_i = t;
+		m = m - 1;
+	);
+	list
+);
+//Select n records at random from a set of N, where 0 < n <= N
+//taken from The Art of Computer Programming
+randomSelection(n, N) := (
+	regional(t, m, U, result);
+	t = 0; m = 0; result = [];
+	
+	if(n > 0,
+		if (n < N,
+			while(m < n,
+				U = random();
+				if ((N - t) * U < n - m, m = m + 1; result = result :> t+1);
+				t = t + 1;
+			);
+		, // else (n >= N)
+			result = 1..n;
+		);
+	); // else (n <= 0) result = [] by default
+	result
+);
+randomListElement(list) := list_(randomint(length(list)) + 1);
+
+//////////////////////////////////////////////////////////////////////
+///{{{ inPolyAlgos
+//http://geomalgorithms.com/a03-_inclusion.html
+//////////////////////////////////////////////////////////////////////
+
+// checks whether a horizontal ray through P intersects with the line between v and w
+isRayCrossing(P, v, w) := (
+	regional(vt);
+	if ( (v.y <= P.y & P.y < w.y) % (v.y > P.y & P.y >= w.y),
+		vt = (P.y - v.y) / (w.y - v.y);
+		(P.x < v.x + vt * (w.x - v.x))
+	, // else
+	 	false
+	);
+);
+
+//checks whether P lies left of, right of or on the line v and w
+positionToLine(P, v, w) := (
+	(w.x - v.x) * (P.y - v.y) - (P.x - v.x) * (w.y - v.y)
+	//if(num == 0, "on", if(num < 0, "right", "left"))
+);
+//checks if P lies inside the polygon V using winding number
+inPolyWN(P, V) :=(
+	regional(wn, n, v, w);
+	
+	wn = 0;
+	n = length(V) - 1; // V_n == V_1
+//	V = V :> V_1;
+	repeat(n,
+		v = V_#;
+		w = V_(# + 1);
+		if (v.y <= P.y,
+			if (w.y > P.y,
+				if(positionToLine(P, v, w) > 0,
+					wn = wn + 1;
+				);
+			);
+		, // else
+			if (w.y <= P.y,
+				if(positionToLine(P, v, w) < 0,
+					wn = wn - 1;
+				);
+			);
+		);
+	);
+	(wn != 0)
+);
+//checks if the elements of list Ps lies inside the polygon V using winding number
+inPolyWNList(Ps, V) :=(
+	regional(wn, Pn, P, Vn, v, w);
+	
+	wn = apply(Ps, 0);
+	Vn = length(V) - 1; // V_n == V_1
+	Pn = length(Ps);
+	repeat(Vn,
+		v = V_#;
+		w = V_(# + 1);
+		repeat(Pn,
+			P = Ps_#;
+			if (v.y <= P.y,
+				if (w.y > P.y,
+					if(positionToLine(P, v, w) > 0,
+						wn_# = wn_# + 1;
+					);
+				);
+			, // else
+				if (w.y <= P.y,
+					if(positionToLine(P, v, w) < 0,
+						wn_# = wn_# - 1;
+					);
+				);
+			);
+		);
+	);
+	apply(wn, # != 0)
+);
+//checks if P lies inside one of the polygons Vs using winding number
+inOnePolyWN(P, Vs) := (
+	regional(result, i);
+
+	i = 1;
+	result = false;
+	while (!result & (i <= length(Vs)),
+		result = inPolyWN(P, Vs_i);
+		i = i + 1;
+	);
+	result;
+);
+
+//checks if P lies inside the polygon V using crossing number
+inPolyCN(P, V) := (
+	regional(cn, n, v, w);
+	
+	cn = 0;
+	n = length(V) - 1; // V_n == V_1
+//	V = V :> V_1;
+	repeat(n,
+		v = V_#;
+		w = V_(# + 1);
+		if (isRayCrossing(P, v, w), cn = cn + 1);
+
+	);
+	(mod(cn, 2) == 1)
+);
+
+//checks if the elements of list Ps lies inside the polygon V using crossing number
+inPolyCNList(P, V) := (
+	regional(cn, Pn, Vn, v, w);
+	
+	cn = apply(P, 0);
+	Pn = length(P);
+	Vn = length(V) - 1; // V_n == V_1
+//	V = V :> V_1;
+	repeat(Vn,
+		v = V_#;
+		w = V_(# + 1);
+		repeat(Pn,
+			if (isRayCrossing(P_#, v, w), cn_# = cn_# + 1);
+		);
+
+	);
+
+	apply(cn, (mod(#,2) == 1));
+);
+//}}}
+//////////////////////////////////////////////////////////////////////
+//distributes n circles of radius r in the rect that is given by TL and BR
+randomPositions(n, r, TL, BR) := (
+	regional(result, m, x, y, w, h, check, cTL, minX, maxX);
+	cTL = (canvas_1).xy;
+
+	result = [];
+	m = 0;
+	w = (BR.x - TL.x);
+	h = (TL.y - BR.y);
+	minX = (canvas_2).x;
+	maxX = cTL.x;
+
+	while(m < n,
+		x = TL.x + random(w);
+		y = BR.y + random(h);
+		check = true; //check the distance to previous points
+		forall(result, check = check & (|#, [x, y]| >= 4*r));
+		if(check,
+			result = result :> [x, y];
+			if(x < minX, minX = x, if(x > maxX, maxX = x));
+			m = m + 1;
+		);
+	);
+
+	//center splatter
+	m = sum(result) / n;
+
+	minX = minX - m.x - r + (TL + BR).x / 2;
+	maxX = maxX - m.x + r + (TL + BR).x / 2;
+
+	if(minX >= cTL.x & maxX <= (canvas_2).x, //prevent points at the border of the screen
+		result = apply(result,	# - m + (TL + BR) / 2);
+	);
+
+	sort(result, |cTL, #|);
+);
+//orders the points into groups of n/fraction_2 for correction display
+correctionPositions(n, marked, inPoly) := (
+	regional(result, one, m, p, left, top);
+	
+	result = zerovector(n);
+	
+	one = n / fraction_2;
+	
+	top = -1.25 + ((canvas_1).y + (canvas_3).y - (one) * 2.5) / 2;
+	left = ((canvas_1).x + (canvas_2).x - (fraction_2 - 1) * 3.5) / 2;
+
+	//define Bracket-Points
+	correctionBracket = apply([[-1.75, 2.5], [-1.75, 1.25], 
+		[1.75 + (fraction_1 - 1) * 3.5, 1.25], [1.75 + (fraction_1 - 1) * 3.5, 2.5]],
+		# + [left, top - 0.2]
+	);
+
+	m = 0;
+	p = 0;
+	while(m + p < n,
+		if(inPoly_(m+p+1), //put marked points to the left
+			result_(m+p+1) = [left, top] + [floor(m / one) * 3.5, (mod(m, one) + 1) * 2.5];
+			m = m + 1;
+		, // else
+			result_(m+p+1) = [left, top] + [floor((marked + p) / one) * 3.5, (mod(marked + p, one) + 1) * 2.5];
+			p = p + 1;
+		);
+	);
+	result
+);
+//finds the point from points closest xy, if its distance at most tol
+findPointCloseTo(xy, tol) := (
+	regional(minD, min, d);
+	minD = 999;
+	min = false;
+	forall(points,
+		d = |#, xy|;
+		if(d < minD,
+			minD = d;
+			min = #;
+		);
+	);
+
+	if(minD <= tol,	min, false);
+);
+//////////////////////////////////////////////////////////////////////
+generatecards() := (
+	regional(d, e);
+
+	if (ladderPos > 0,
+		if(batchFails <= 0.4 * batchSizes_ladderPos,
+			ladderPos = min([length(batchSizes), ladderPos + 1]);
+		);
+	, // else
+		ladderPos = 1;
+	);
+
+	batchFails = 0;
+	d = shuffle(randomSelection(batchSizes_ladderPos, 8));
+	
+	repeat(batchSizes_ladderPos,
+		e = randomint(d_#) + 1;
+
+		whole = if(ladderPos == 1, 
+			d_# + 1,
+			(d_# + 1) * (randomint(17 / (d_# + 1)) + 2)
+		);
+		newCard([[e, d_# + 1], whole]);
+	);
+);
+//generates the game
+startgame():=(
+	regional(cc);
+	if(cardCount() == 0,
+		generatecards();
+	);
+	cc = nextCard();
+	fraction = cc_1;
+	whole = cc_2;
+	
+	points = apply(1..whole, [((canvas_1).x + (canvas_2).x) / 2, (canvas_3).y - 5]);
+	pointColors = apply(points, iBruLeColor("blue", -1));
+	pointAlphas = zerovector(whole);
+	imageAngles = apply(1..whole, random() * 360°);
+	imageName = randomListElement(allimages());
+	imageScale = 0.5; //25 / max(imagesize(imageName));
+	
+	strokes = [];
+	
+	javascript("next(" + fraction + "," + whole + ",'" + imageName + "')");
+	
+	startAnimation("gamestart");
+);
+
+correct() := (
+	regional(class);
+	if(animationState == "idle",
+
+		expected = whole * fraction_1 / fraction_2;
+		input = sum(pointInPoly, if(#, 1, 0));
+
+		if (input > 0,
+		blocked = true;
+
+		DMlog([input == expected, fraction, whole, input]);
+
+		strokes = [];
+		//points = correctionPositions(whole, input, pointInPoly);
+		startAnimation("correct");
+
+		if(input == expected,
+			moveCard(true);
+			javascript("updateResultMsg(true)")
+		, // else
+			moveCard(false);
+			batchFails = batchFails + 1;
+			javascript("updateResultMsg(false, " + (input - expected) + ",'" + imageName + "')");
+		);
+
+		javascript("graded=true");
+		);
+	);
+);
+//////////////////////////////////////////////////////////////////////
+//{{{ ANIMATIONS
+startAnimation(state) := (
+	startTime = seconds();
+	startPoints = points;
+	startAngles = imageAngles;
+	animationState = state;
+	doStopAnimation = false;
+
+	if(state == "gamestart", 
+		endPoints = randomPositions(whole, 1,  [-5, 15], [27, -3]);
+		animationDuration = 0.4;
+		animationOrder = shuffle(1..whole);
+		,
+	if(state == "correct", 
+		endPoints = correctionPositions(whole, input, pointInPoly);
+		animationDuration = 0.6;
+		animationOrder = 1..whole;
+		,
+	if(state == "colors",
+		animationDuration = 0.4;
+		,
+	if(state == "gameend",
+		//hide text & bracket
+		drawCorrectionBracket = false;
+		cleartex("corrfrac");
+		
+		endPoints = apply(points, [((canvas_1).x + (canvas_2).x) / 2, (canvas_3).y - 5]);
+		animationDuration = 0.3;
+		animationOrder = shuffle(1..whole);
+	))));
+
+	// this is an iPad fix. On occasion the first animation would not run.
+	if(firstRun,
+		points = endPoints;
+		firstRun = false;
+		endAnimation();
+	, // else
+		playanimation();
+	);
+);
+
+tickAnimation() := (
+	if((animationState == "gamestart") % (animationState == "correct") % (animationState == "gameend"),
+		animatePoints();
+		,
+	if(animationState == "colors",
+		animateColors();
+	));
+);
+//colors circles accordingly to input one by one
+animateColors() := (
+	regional(c, i, t);
+	t = (seconds() - startTime) / animationDuration;
+	c = 0;
+	if(input < expected,
+		if ((0 <= t) & (t <= 1 + (expected - input) * animationDuration),
+			i = 1;
+			while(input + c < expected,
+				if(!pointInPoly_i,
+					//pointColors_i = iBruLeColor("blue", -1) 
+					//	+ ANItimingLinear(t - c * animationDuration)
+					//		* (iBruLeColor("red") - iBruLeColor("blue", -1));
+
+					pointColors_i = iBruLeColor("red"); 
+					pointAlphas_i = 0 + ANItimingLinear(t - c * animationDuration) * 0.6;
+					c = c + 1;
+				);
+				i = i + 1;
+			);
+		, // else
+			endAnimation();
+		);
+	, // else
+	if(input > expected,
+		if ((0 <= t) & (t <= 1 + (input - expected) * animationDuration),
+			i = whole;
+			while(input - c > expected,
+				if(pointInPoly_i,
+					pointColors_i = iBruLeColor("blue", 1) 
+						+ ANItimingLinear(t - c * animationDuration)
+							* (iBruLeColor("red") - iBruLeColor("blue", 1));
+					//pointAlphas_i = 0 + ANItimingLinear(t - c * animationDuration) * 0.6;
+					c = c + 1;
+				);
+				i = i - 1;
+			);
+		, // else
+			endAnimation();
+		);
+	, // else (input == expected)
+		if ((0 <= t) & (t <= 1 + input * animationDuration),
+			i = 1;
+			while(c < input,
+				if(pointInPoly_i,
+					pointColors_i = iBruLeColor("blue", 1) 
+						+ ANItimingLinear(t - c * animationDuration)
+							* (iBruLeColor("green") - iBruLeColor("blue", 1));
+					//pointAlphas_i = 0 + ANItimingLinear(t - c * animationDuration) * 0.6;
+					c = c + 1;
+				);
+				i = i + 1;
+			);
+		, // else
+			endAnimation();
+		);
+
+	);
+	);
+);
+//smoothly moves all points to their new positions
+animatePoints() := (
+	regional(t);
+	t = (seconds() - startTime) / animationDuration;
+	if ((0 <= t) & (t <= 1 + length(points) * animationDuration/5),
+		repeat(length(animationOrder),
+			points_(animationOrder_#) = startPoints_animationOrder_# 
+				+ ANItimingEaseOut(t - (#-1) * animationDuration/5) 
+					* (endPoints_animationOrder_# - startPoints_animationOrder_#);
+			if(animationState == "correct",
+				imageAngles_(animationOrder_#) = startAngles_animationOrder_#
+					+ ANItimingEaseOut(t - (#-1) * animationDuration/5) 
+						* (if(startAngles_animationOrder_# > 180°, 360°, 0)
+							- startAngles_animationOrder_#);
+
+			);
+		);
+	, // else
+		endAnimation();
+	);	
+);
+//stops the animation and starts the next part if neccessary
+endAnimation() := (
+	regional(state);
+	state = animationState;
+//	stopanimation();
+	doStopAnimation = true;
+	animationState = "idle";
+	
+	if(state == "gameend", startgame(),
+	if(state == "gamestart", blocked = false,
+	if(state == "correct", drawCorrectionBracket = true;
+		javascript("document.getElementById('resultmsg').style.display = 'block'");
+		startAnimation("colors");
+	)));
+);
+///}}}
+
+///clicky-stuff{{{
+normedVector(v) := v/|v|;
+addPoint(P) := (
+	regional(line, j, FP, nP, start);
+	
+	if(length(stroke2) > 0,
+		nP = stroke2_(-1);
+		start = nP;
+		line = join(nP, P);
+		j = 1;
+		while(j < length(points),
+			if((points_j != P) & (points_j != nP),
+				FP = meet(perp(points_j, line), line).xy;
+
+				if(  (nP.x <= FP.x & FP.x <=  P.x)
+				   % (P.x  <= FP.x & FP.x <= nP.x),
+					if(|points_j, FP| <= 1.2,
+						nP = FP + 1.3 * normedVector(FP - points_j);
+						stroke2 = stroke2 :> nP;
+						line = join(nP, P);
+						j = 1;
+					);
+				);
+			);
+			j = j + 1;
+		);
+
+		j = length(stroke2);
+		stroke2 = stroke2 :> P;
+	//	while(stroke2_j != start,
+	//		stroke2 = stroke2 :> stroke2_j;
+	//		j = j - 1;	
+	//	);
+	, // else
+		stroke2 = [P];
+	);
+);
+
+convexhull(P) := (//not tested
+	regional(start, n);
+	n = length(P);
+	//find bottom point
+	start = P_1;
+	forall(P,
+		if(start.x >= #.x,
+			if(start.y < #.x,
+				start = #
+			);
+		);
+	);
+
+	// sort by angle
+	P = [start] ++ sort(P -- [start] , start.x * #.x + start.y * #.y);
+	
+	M = 2;	
+	forall(2..n,
+		i = #;
+		while((i <= n) & (positionToLine(P_i, P_(M-1), P_M) <= 0),
+			if(M > 2,
+				M = M - 1
+			, // else
+				i = i + 1
+			);
+		);
+		if(i == N+1, true);
+		M = M + 1;
+		tmp = P_M;
+		P_M = P_i;
+		P_i = tmp;
+	);
+);
+///}}}
+//////////////////////////////////////////////////////////////////////
+
+ladderPos = 0;
+ladderPos = DMstore("ladderPos");
+if(DMisundefined(ladderPos), ladderPos = 0);
+//beim Verlassen der Seite Variablen speichern
+savemyvars() := (
+	if(cardCount() == 0,
+		generatecards();
+	);
+	DMstore("ladderPos", ladderPos);
+	DMstore("batchFails", batchFails);
+);
+DMsetOnSave("savemyvars()");
+
+batchSizes = [3, 5];
+batchFails = 0;
+
+//////////////////////////////////////////////////////////////////////
+
+fraction = [1, 2];
+whole = 2;
+
+stroke = [];
+strokes = [];
+stroke2 = [];//clicky
+points = [];
+pointInPoly = [];
+pointColors = [];
+mouseDown = false;
+
+animationState = "gamestart";
+doStopAnimation = false;
+
+drawCorrectionBracket = false;
+
+firstRun = true;
+startgame();
+</script>
+
+
+<script id="csmousedown" type="text/x-cindyscript">
+if(!blocked,
+	mouseDown = mouse();
+	if(inOnePolyWN(mouseDown, strokes),
+		strokes = strokes :> [mouseDown]
+	, // else
+		strokes = [[mouseDown]];
+		// pointColors = apply(points, iBruLeColor("blue", -1));
+		pointAlphas = zerovector(whole);
+	);
+);
+</script>
+
+
+<script id="csmousedrag" type="text/x-cindyscript">
+if(!blocked,
+	strokes_(-1) = strokes_(-1) :> mouse();
+	//smoothing
+	if(length(strokes_(-1)) > 2,
+		strokes_(-1)_(-2) = (strokes_(-1)_(-3) + strokes_(-1)_(-1) + mouse())/3
+	);
+);
+</script>
+
+
+<script id="csmouseup" type="text/x-cindyscript">
+if(!blocked,
+	if(mouseDown != false, if(|mouseDown, mouse()| < 1,
+		cp = findPointCloseTo((mouse() + mouseDown) / 2, 1.2);
+		if(cp != false,
+	//		addPoint(cp);
+	//		stroke2 = stroke2 :> cp;
+			if(strokeLength(strokes_(-1)) <= 1,
+				strokes_(-1) = apply(2 * pi * (1..25) / 25,
+					cp + [sin(#), cos(#)] * 1.2;
+				);
+			);
+		);
+	));
+	strokes_(-1) = strokes_(-1) :> strokes_(-1)_1;
+
+	pointInPolys = apply(strokes, inPolyWNList(points, #));
+	pointInPoly = apply(1..whole, i, OR(apply(pointInPolys, #_i)));
+//	pointColors = apply(pointInPoly, iBruLeColor(if(#, "orange", "blue"), if(#, 1, -1)));
+	pointAlphas = apply(pointInPoly, if(#, 0.6, 0));
+	mouseDown = false;
+	//correct();
+);
+</script>
+
+<script id="cstick" type="text/x-cindyscript">
+tickAnimation();
+</script>
+
+<script id="csdraw" type="text/x-cindyscript">
+repeat(length(points), 
+	fill(circle(points_#, 1.2), color->pointColors_#, alpha->pointAlphas_#);
+	drawimage(points_#, imageName, scale->imageScale, rotation->imageAngles_#, rendering->"nice");
+//	drawtext(points_#-[0,0.25], #, color->(1,1,1), align->"mid")
+);
+//draw the line we are currently drawing
+if(mouseDown != false, connect(strokes_(-1), color->iBruLeColor("blue"), size->3));
+//draw all other lines / the full shape
+if((mouseDown == false) % (length(strokes) > 1),
+	strokeShape = polygon(strokes_1);
+	repeat(length(strokes) - if(mouseDown == false, 0, 1),
+		strokeShape = strokeShape ++ polygon(strokes_(#));
+	);
+	draw(strokeShape, color->iBruLeColor("blue"), size->3, alpha->if(mouseDown != false, 0.5, 1));
+);
+
+if(drawCorrectionBracket,
+	connect(correctionBracket, size->4, color->iBruLeColor("black"), lineCap->"square");
+	drawtex((correctionBracket_2 + correctionBracket_3)/2 + [0, -2], 
+		"\frac{" + fraction_1 + "}{" + fraction_2 + "}",
+		"corrfrac",
+		align->"mid",
+		size->24
+	);
+);
+
+drawall(stroke2);
+connect(stroke2, color->iBruLeColor("minion"), size->3);
+//draw(meet(join(canvas_1, canvas_3), join(canvas_2, canvas_4)));
+
+//this is a work-around for https://github.com/CindyJS/CindyJS/issues/180
+if(doStopAnimation,
+	stopanimation();
+	doStopAnimation = false;
+);
+</script>
+
+<script src="cindyColor.js" data-scriptid="csinit"></script>
+<script src="cindyEasings.js" data-scriptid="csinit"></script>
+<script type="text/javascript">
+var images = {
+	   apple: {textName: "Äpfel",		url: "./img/apple_02s.png"},
+	  orange: {textName: "Orangen",		url: "./img/orange_s.png"},
+	  meeple: {textName: "Figuren",		url: "./img/icon_single_s.png"},
+	chillies: {textName: "Peperonis",	url: "./img/peperoni_s.png"},
+	     egg: {textName: "Eier",		url: "./img/egg_01_brown_s.png"},
+//	     rat: {textName: "Ratten",		url: "./img/rat_s.png"},
+};
+
+var imageNames = Object.keys(images);
+
+Cindy = createCindy({
+	ports: [{id: "CSCanvas"}],
+	scripts: "cs*",
+	geometry: [],
+	images: (function(){
+		var result = {};
+		imageNames.forEach(function(cv) {
+			result[cv] = images[cv].url;
+		});
+		return result;})(),
+	csconsole: null,
+});
+
+var btn, tapDown;
+
+function touchStart(e){
+	tapDown = this;
+}
+
+var graded, correct;
+function buttonClick(e){ if(this.disabled) return false;
+	e.stopImmediatePropagation();
+	e.preventDefault();
+	
+	if (e.type == "touchend" & tapDown != this)
+		return false;
+	tapDown = null;
+	
+	if (!graded) {
+		Cindy.evokeCS("correct();");
+		if (graded) {
+			if (typeof Scribble !== "undefined") Scribble.clear();
+			this.innerHTML = "Neue Aufgabe";
+			this.classList.remove('orange');
+			this.classList.add('blue');		
+			this.disabled = true;
+			setTimeout((function(){
+				this.disabled = false;
+			}).bind(this), 600 * (1 + whole/5));
+		}
+	} else {
+		graded = false;
+		Cindy.evokeCS('startAnimation("gameend");');
+		document.getElementById('resultmsg').style.display = 'none';
+		cindyDM.start();	
+		this.innerHTML = "Stimmt das?";
+		this.classList.add('orange');
+		this.classList.remove('blue');
+		this.disabled = true;
+		setTimeout((function(){
+			this.disabled = false;
+		}).bind(this), 2000);
+	}
+}
+btn = document.getElementById('btn_correct');
+btn.addEventListener("touchstart", touchStart);
+btn.addEventListener("click", buttonClick);
+btn.addEventListener("touchend", buttonClick);
+btn.addEventListener("mousemove", passOn);
+btn.addEventListener("mouseup", passOn);
+btn.addEventListener("touchmove", passOn);
+btn.addEventListener("touchend", passOn);
+
+var whole, fraction;
+function updateResultMsg(correct, direction, imgName) {
+	var additionalClass,
+	    div = document.getElementById("resultmsg");
+
+	additionalClass = (whole / fraction[1] > 4) ? " right" : "";
+
+	if(correct) {
+		div.innerHTML = ["Richtig!", "Das stimmt!"][Math.floor(Math.random() * 2)];
+		div.className = "answerRight" + additionalClass;
+	} else {
+		div.innerHTML = "Das war nicht richtig.<br>Du hast zu "
+				+ ((direction < 0) ? "wenig" : "viel") + " " 
+				+ images[imgName].textName + " umrandet."
+
+		div.className = "answerWrong" + additionalClass;
+	}
+}
+
+function next(arr, pts, imgName) {
+	fraction = arr;
+	whole = pts;
+
+	document.getElementById('what').innerHTML = images[imgName].textName;
+
+	if(arr[1] != 2) {
+		katex.render("\\frac{" + arr[0] + "}{" + arr[1] + "}",
+			document.getElementById('task'));
+	} else {
+		document.getElementById('task').innerHTML = "die Hälfte";
+		document.getElementById('task').className = "";
+	}
+}
+function passOn(e){
+	if (e.type.indexOf("touch") !== -1) {
+	//	Cindy.canvas.dispatchEvent(new TouchEvent(e.type, e));
+	//Safari-Fix:
+		var te = new UIEvent(e.type, e);
+		te.touches = e.touches;
+		te.targetTouches = e.targetTouches;
+		te.changedTouches = te.changedTouches;
+		Cindy.canvas.dispatchEvent(te);
+	} else {
+		Cindy.canvas.dispatchEvent(new MouseEvent(e.type, e));
+	}
+}
+</script>
+<!--script src="scribble.js"></script-->
+</body>
+</html>

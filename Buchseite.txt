@@ -1,0 +1,17 @@
+Und anders herum ...?
+
+Wir können auch anders herum aus einer gemischten Zahl wieder einen \txta{unechten Bruch} machen:
+
+[BILD]
+
+
+
+Merke
+
+Gemischte Zahlen kann man auch wieder als unechte Brüche schreiben:
+\begin{align*}
+2\,\frac{3}{7}= {\color{FF8C00}2} +{\color{008077}\frac{3}{7}}= {\color{FF8C00}\frac{14}{7}} +{\color{008077}\frac{3}{7}}= {\color{0C5AA6}\frac{17}{7}}
+\end{align*}
+
+
+Aufgabe 70

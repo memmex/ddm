@@ -1,0 +1,149 @@
+#widgetInfoOpener{
+ 	position: fixed;
+	width: 44px;
+	padding-right: 5px;
+	height: 44px;
+	top: 0;
+	right: 0;
+	z-index: 100;
+}
+
+#widgetInfoOpener i{
+	display: block;
+	position: absolute;
+	left: 11px;
+	top: 11px;
+	
+	padding-top: 2px;
+	line-height: 18px;
+	width: 20px;
+	height: 18px;
+	text-align: center;
+	
+	color: #fff;
+	background: #000;
+	border: 1px solid #fff;
+	border-radius: 100%;
+
+	font-style: normal;
+	font-size: 14px;
+	font-weight: bold;
+	font-family: Palatino;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.notransition{
+	transition: none !important;
+}
+
+#widgetInfo{
+	position: fixed;
+	top: 0;
+	right: -100%;
+	background: #e0e0e0;
+	max-width: 33%;
+	text-align: justify;
+	-moz-hyphens: auto;
+	-webkit-hyphens: auto;
+	hyphens: auto;
+	font-family: Palatino;
+	max-height: 100%;
+	overflow: scroll;
+	padding: 0 44px;
+	transition: right 0.5s ease-out;
+	z-index: 102;
+	border-bottom-left-radius: 2px;
+	box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+}
+
+#widgetInfo hr{
+	border: 1px solid #808080;
+	margin-left: 10%;
+	margin-right: 10%;
+}
+#widgetInfoDMReset{
+	text-align: center;
+	font-size: 0.8em;
+	margin: 1em 0;
+}
+#widgetInfoDMResetConfirm{
+	display: none;
+	margin: 1em 0;
+}
+#widgetInfoDMResetConfirm::before{
+	content: "Bitte bestätigen: ";
+}
+
+#widgetInfoCloser{
+	position: absolute;
+	top: 50%;
+	left: 0;
+	color: #808080;
+	font-weight: 900;
+	font-size: 26pt;
+	width: 38px;
+	text-align: center;
+	transform: translate(0, -50%);
+	-webkit-transform: translate(0,-50%);
+	-webkit-tap-highlight-color: transparent;
+}
+
+#widgetInfoShader{
+	position: fixed;
+	top:0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(78, 78, 78, 0.5);
+	z-index: 101;
+
+	visibility: hidden;
+	opacity: 0;
+	transition: all 0.5s ease-out;
+}
+
+#widgetContent{
+	transition: transform 0.5s ease-out;
+	-webkit-transition:-webkit-transform 0.5s ease-out;
+	-webkit-transform-origin: top left;
+	transform-origin: top left;
+}
+button{
+	display: inline-block;
+	text-align: center;
+	padding: 0.4em 1.5em;
+	min-width: 80px;
+	min-height: 40px;
+	line-height: 100%;
+	white-space: nowrap;
+	vertical-align: middle;
+	margin: 2px 4px;
+
+	font-family: 'Helvetica Neue', 'Arial', sans-serif;
+	font-size: inherit;
+	font-weight: bold;
+	color: #fff;
+	
+	border-radius: 4px;
+	border: 0px;
+	box-shadow: inset 0px -2px rgba(0,0,0,0.205);
+	-webkit-tap-highlight-color: transparent;
+}
+button.dark.blue{
+	background-color: #094580;
+	box-shadow: inset 0px -2px #053664;
+}
+button.dark.blue:active{
+	background-color: #0C5AA6;
+	box-shadow: inset 0px 2px #094580;
+}
+button.red{
+	background-color: #D71318;
+	box-shadow: inset 0px -2px #AD060A;
+}
+button.red:active{
+	background-color: #EC3E42;
+	box-shadow: inset 0px 2px #D71318;
+}
+
+

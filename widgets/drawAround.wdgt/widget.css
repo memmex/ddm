@@ -1,0 +1,131 @@
+@font-face{
+	font-family: "Umlauts";
+	src: local('Marion'), local('Palatino');
+	unicode-range: U+c4, U+d6, U+dc, U+e4, U+f6, U+fc;
+}
+
+body{
+	font-size: 18pt;
+	font-family: Umlauts, KaTeX_Main, Palatino, serif;
+	text-align: center;
+	background: url('img/widget_back_10.png') fixed 0 0/100%; 
+	margin: 0;
+	overflow: hidden;
+}
+
+#resultmsg{
+	font-size: 1.4em;
+}
+#resultmsg.answerRight{color: #43BA10;}
+#resultmsg.answerWrong{color: #D71318;}
+#resultmsg.answerOk{color: #FF8C00;}
+	
+div.card{
+	padding: 1em;
+	border: 1px solid #fff;
+	box-shadow: 0px 0px 10px rgba(0,0,0,0.15), 5px 5px 10px rgba(0,0,0,0.15);
+	background-color: #fff;
+	background-image: linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 75%,rgba(0,0,0,0.1) 100%);
+	background-size: 100% 100%;
+	background-position: 0 0;
+	display: inline-block;
+	-webkit-appearance: none; /* Schatten auf dem iPad */
+}
+div.card.grid{
+	background-image: linear-gradient(rgba(0,0,0,0.3) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(0,0,0,0.3) 1px, transparent 1px),
+		linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0) 75%,rgba(0,0,0,0.1) 100%);
+	background-size: 1em 1em, 1em 1em, 100% 100%;
+	background-position: 0.5em, 0.5em, 0 0;
+}
+
+div.hidden{
+	position: absolute;
+	transition-property: transform, -webkit-transform;
+	transition-duration: 400ms;
+	transition-timing-function: ease-in;
+}
+div.hidden.visible{
+	transition-timing-function: ease-out;
+}
+
+div.hidden.snappy{
+	transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+div.hidden.fast{
+	transition-duration: 200ms;
+}
+
+div.hidden.right{
+	top: 50%;
+	right: 0;
+	-webkit-transform: translate(110%, -50%);
+	transform: translate(110%, -50%);
+}
+
+div.hidden.right.visible{
+	-webkit-transform: translate(0%, -50%);
+	transform: translate(0%, -50%);
+}
+
+div.hidden.below{
+	bottom: 0;
+	left: 50%;
+	-webkit-transform: translate(-50%, 100%);
+	transform: translate(-50%, 100%);
+}
+
+div.hidden.below.visible{
+	-webkit-transform: translateX(-50%);
+	transform: translateX(-50%);
+}
+
+/*** TIPS ***/
+
+.lights{
+	width: 60px;
+	height: 204px;
+	padding: 10px;
+	border-radius: 4px;
+	background: #232323;
+}
+
+.lights button.circle{
+	display: block;
+	margin: 6px 0px;
+	font-size: 27px; 
+}
+
+#tip2 sup, #tip2 sub{ font-size: 1em; }
+
+.lights button.dark{
+	color: #4E4E4E;
+	background-image: repeating-linear-gradient(45deg, transparent, transparent 1px, rgba(36,36,36,.5) 1px, rgba(36,36,36,.5) 2px);
+	background-image: url('./img/lights_bg.png');
+}
+.lights button.dark.green:disabled{
+	background-color: #309605;
+	box-shadow: inset 0px -2px #227400;
+}
+.lights button.dark.yellow:disabled,
+.lights button.dark.orange:disabled{
+	background-color: #C56C00;
+	box-shadow: inset 0px -2px #9B5500;
+}
+
+.lights button.dark.red:disabled{
+	background-color: #AD060A;
+	box-shadow: inset 0px -2px #850003;
+}
+
+#tipsOpener{
+ 	position: fixed;
+	width: 44px;
+	padding-right: 5px;
+	height: 44px;
+	top: 50px;
+	right: 2px;
+	z-index: 100;
+	background: url('./img/tip_button_11.png') no-repeat center center;
+}
