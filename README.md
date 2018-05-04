@@ -1,4 +1,3 @@
-# ddm
 From: Hoch, Stefan [mailto:stefan.hoch@tum.de]
 Sent: Thursday, Apr 26, 2018 15:14 CEST
 To: Jonas Hafemann
