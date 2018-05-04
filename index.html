@@ -33,82 +33,12 @@
 
 	<body>
 		<header>
-			<span id="section"><span>BLA</span><nav></nav></span>
-			<span id="page">1</span>
-			<span id="chapter"><span>BLUBB</span><nav></nav></span>
 		</header>
-
-
-
-
-
-
-
-
-	</body>
+		<body
+		</body>
+		<footer>
+		</footer>
 </html>
-
-
-
-
-
-<!doctype html>
-<html>
-<head>
-
-
-
-
-
-</head>
-
-<body>
-
-<div id="pages">
-<section data-title="Bruchzahlen und Bruchteile">
-<section data-title="Eine Pizza wird geteilt">
-<div class="visible columns-manual">
-	<div class="c1">
-		<img alt="Pizza">
-
-		<h4 class="icon teacher">Merke</h4>
-		<div class="merke">
-		$$\frac12$$
-		</div>
-	</div>
-	<div class="c2">
-		<div class="widget icon single" data-name="drawAround">
-			Was stimmt?
-		</div>
-
-		<div class="widget icon group">
-			Was stimmt?
-		</div>
-	</div>
-</div>
-<div class="columns-manual">
-	<div class="c1">
-		<p>Hier siehst du die Pizza noch einmal</p>
-		<img>
-	</div>
-	<div class="c2">
-		<div class="widget">
-			Kannst du erklären, wie Anna geschnitten hat?
-			Schreibe deine Antwort auf und vergleiche dann mit deinem Banknachbarn.
-		</div>
-	</div>
-</div>
-</section>
-<section data-title="Den Anteil von etwas berechnen">
-</section>
-<section data-title="Pizza und Schokolade verteilen">
-</section>
-<section data-title="...">
-</section>
-</section>
-</div>
-<footer></footer>
-
 
 
 <!-- WIDGET-Container -->
@@ -126,51 +56,7 @@
 <!-- SCRIPT -->
 <script>
 var BOOK = {};
-//build
-function chapterNav() {
-	var nav = $('#chapter>nav');
-	$('#pages>section[data-title]').each(function(){
-		var a = $('<a></a>')
-			.attr("href", "#" + this.id)
-			.html(this.dataset.title)
-			.addClass(this.id);
-		nav.append(a);
-	});
-}
-function inChapterNav(chapter) {
-	var nav = $('#section>nav');
-	$('#pages>section[data-title]').eq(chapter)
-		.children("section[data-title]").each(function(){
-		var a = $('<a></a>')
-			.attr("href", "#" + this.id)
-			.html(this.dataset.title)
-			.addClass(this.id);
-		nav.append(a);
-	});
-}
-function setHeader() {
-	var activePage = $("#pages div.visible");
-	var section = activePage.parent();
-	var chapter = section.parent();
-	var page = $("#pages>section>section>div").index(activePage) + 1;
 
-	$('#section>span').html(section.data("title"));
-	$('#page').html(page);
-	$('#chapter>span').html(chapter.data("title"));
-
-	inChapterNav($("#pages>section").index(chapter));
-}
-
-//Section-Headings
-$("section[data-title]>div:first-child").each(function(){
-	var t = $(this),
-	    h = "<h3>" + t.parent().data("title") + "</h3>";
-	if (t.hasClass("columns-manual")) {
-		t.children("div.c1").prepend(h);
-	} else {
-		t.prepend(h);
-	}
-});
 
 //Widgets {{{
 $('.widget').each(function(){

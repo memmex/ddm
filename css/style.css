@@ -3,7 +3,7 @@
 body{
 	font-size: calc(18 / 768 * 100vh);
 	font-family: Palatino, serif;
-	background: url('img/paper_background_03.png') 0 0/100% repeat fixed;
+	background: url('../img/paper_background_03.png') 0 0/100% repeat fixed;
 	margin: 0;
 	color: #232323;
 	text-align: center;
@@ -26,7 +26,7 @@ header{
 	display: table;
 	width: 100%;
 	padding-bottom: 1.5em;
-	background: url('img/banner.png') no-repeat center bottom/calc(100% - 2 * 50 / 768 * 100vh);
+	background: url('../img/banner.png') no-repeat center bottom/calc(100% - 2 * 50 / 768 * 100vh);
 }
 header>span{
 	position: relative;
@@ -132,10 +132,10 @@ div.columns-manual .c2::after{
 	transform: translateX(100%);
 }
 
-.icon.single::after{  background-image: url('./img/icon_single.png'); }
-.icon.partner::after{ background-image: url('./img/icon_partner.png'); }
-.icon.group::after{   background-image: url('./img/icon_group.png'); }
-.icon.teacher::after{ background-image: url('./img/icon_teacher.png'); }
+.icon.single::after{  background-image: url('../img/icon_single.png'); }
+.icon.partner::after{ background-image: url('../img/icon_partner.png'); }
+.icon.group::after{   background-image: url('../img/icon_group.png'); }
+.icon.teacher::after{ background-image: url('../img/icon_teacher.png'); }
 
 div.widget{
 	margin: 0.5em 0;
@@ -231,7 +231,7 @@ body:not(.no-ios) #designedfortouch{
 /* */
 
 hr{
-	background: url('img/banner.png') no-repeat center center/100%;
+	background: url('../img/banner.png') no-repeat center center/100%;
 	border: 0;
 	height: 25px;
 }
@@ -285,7 +285,7 @@ ul.vert>li.divider{
 .grey { color: #808080 }
 .grey.dark { color: #4E4E4E }
 .grey.darker { color: #232323 }
-    
+
 .violett.lighter { color: #B36DD4 }
 .violett.light { color: #9E3ECC }
 .violett { color: #9113CC }
@@ -332,7 +332,7 @@ a:hover{
 }
 
 a.external-link, a.external-link-new-window, a[target="_blank"] {
-    background: transparent url("img/icn/icn_tum_externlink.png") no-repeat scroll right center;
+    background: transparent url("../img/icn/icn_tum_externlink.png") no-repeat scroll right center;
     padding-right: 15px;
 }
 
@@ -372,7 +372,7 @@ a.imagelink{
 
 /* }}}*/
 
-/* demos {{{ */ 
+/* demos {{{ */
 
 #democontainer{
 	text-align: center;
@@ -453,7 +453,7 @@ a.imagelink{
 	top: 0;
 	right: 0;
 	font-size: 20pt;
-	
+
 	width: 44px;
 	height: 44px;
 	line-height: 44px;
