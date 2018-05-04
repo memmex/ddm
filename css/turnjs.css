@@ -1,0 +1,15 @@
+#flipbook .page{
+	width:1200px;
+	height:800px;
+  box-shadow:0 0 20px rgba(0,0,0,0.2);
+  background-color: tomato;
+}
+
+#flipbook .shadow,
+#flipbook.shadow{
+  -webkit-box-shadow: 0 4px 10px #666;
+  -moz-box-shadow: 0 4px 10px #666;
+  -ms-box-shadow: 0 4px 10px #666;
+  -o-box-shadow: 0 4px 10px #666;
+  box-shadow: 0 4px 10px #666;
+}

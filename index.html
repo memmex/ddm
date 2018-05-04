@@ -26,8 +26,9 @@
 		<title>Lernen mit dem Tablet-PC: Eine Einführung in das Bruchrechnen für Klasse 6</title>
 
 		<link rel="stylesheet" href="js/katex/katex.min.css"/>
-		<link rel="stylesheet" href="css/styles.css"/>
+		<link rel="stylesheet" href="css/style.css"/>
 		<link rel="stylesheet" href="css/button.css"/>
+    <link rel="stylesheet" href="css/turnjs.css"/>
   </head>
 
 	<body>
@@ -36,14 +37,18 @@
 
     <main>
       <div id="flipbook">
-        <div><iframe src="pages/page002.html"></iframe></div>
-        <div><iframe src="pages/page003.html"></iframe></div>
-        <div><iframe src="pages/page004.html"></iframe></div>
-        <div><iframe src="pages/page005.html"></iframe></div>
-        <div><iframe src="pages/page006.html"></iframe></div>
-        <div><iframe src="pages/page007.html"></iframe></div>
-        <div><iframe src="pages/page008.html"></iframe></div>
-        <div><iframe src="pages/page009.html"></iframe></div>
+        <div class="hard">A Book</div>
+        <div class="hard"></div>
+        <div class="page">Page 1</div>
+        <div>Page 2</div>
+        <div>Page 3</div>
+        <div>Page 4</div>
+        <div>Page 5</div>
+        <div>Page 6</div>
+        <div>Page 7</div>
+        <div>Page 8</div>
+        <div class="hard"></div>
+        <div class="hard"></div>
       </div>
     </main>
   </body>
@@ -52,18 +57,29 @@
   </footer>
 
   <script>
-      $("#flipbook").turn({
-        acceleration: true,
-        autoCenter: false,
-        direction: "ltr",
-        display: "double",
-        duration: 600,
-        gradients: true,
-        height: 600,
-        elevation: 50,
-        page: 1,
-        turnCorners: "bl,br",
-        width: 1000,
+    $(document).ready(function() {
+        $("#flipbook").turn({
+          acceleration: true,
+          autoCenter: false,
+          direction: "ltr",
+          display: "double",
+          duration: 600,
+          gradients: true,
+          height: 800,
+          elevation: 50,
+          page: 1,
+          turnCorners: "bl,br",
+          width: 1200,
+        });
       });
+
+      <!-- Seiten bättern mit den Arrow-Keys -->
+      $(window).bind('keydown', function(e){
+        if (e.keyCode==37)
+          $('#flipbook').turn('previous');
+        else if (e.keyCode==39)
+          $('#flipbook').turn('next');
+      });
+
   </script>
 </html>
