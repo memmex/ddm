@@ -21,196 +21,49 @@
 		<script src="js/katex/katex.min.js"></script>
 		<script src="js/katex/contrib/auto-render.min.js"></script>
 		<script src="js/jquery-3.3.1.min.js"></script>
-		<script src="js/turnjs4/.js"></script>
-		<script src="js/turnjs4/.js"></script>
+		<script src="js/turnjs4/lib/turn.js"></script>
 
 		<title>Lernen mit dem Tablet-PC: Eine Einführung in das Bruchrechnen für Klasse 6</title>
 
 		<link rel="stylesheet" href="js/katex/katex.min.css"/>
-		<link rel="stylesheet" href="css/style.css"/>
+		<link rel="stylesheet" href="css/styles.css"/>
 		<link rel="stylesheet" href="css/button.css"/>
   </head>
 
 	<body>
-		<header>
+    <header>
 		</header>
-		<body
-		</body>
-		<footer>
-		</footer>
-</html>
 
+    <main>
+      <div id="flipbook">
+        <div><iframe src="pages/page002.html"></iframe></div>
+        <div><iframe src="pages/page003.html"></iframe></div>
+        <div><iframe src="pages/page004.html"></iframe></div>
+        <div><iframe src="pages/page005.html"></iframe></div>
+        <div><iframe src="pages/page006.html"></iframe></div>
+        <div><iframe src="pages/page007.html"></iframe></div>
+        <div><iframe src="pages/page008.html"></iframe></div>
+        <div><iframe src="pages/page009.html"></iframe></div>
+      </div>
+    </main>
+  </body>
 
-<!-- WIDGET-Container -->
-<div id="player">
-	<div class="ipad">
-		<iframe id="widget" width="1024" height="768">
-			<a id="noiframe" href="#">Klicken Sie hier, um das Widget zu öffnen</a>.
-		</iframe>
-	</div>
-	<a id="widgetnew" target="_blank">Sollte das Widget nicht korrekt dargestellt werden, versuchen Sie,
-		es durch einen Klick hier in einem neuen Fenster zu öffnen.</a>
-</div>
-<div id="playerShader"></div>
+  <footer>
+  </footer>
 
-<!-- SCRIPT -->
-<script>
-var BOOK = {};
-
-
-//Widgets {{{
-$('.widget').each(function(){
-	var w = $(this);
-	var path = "./widgets/" + w.data("name") + ".wdgt/";
-	var index = w.data("mainHTML");
-
-	if (index === undefined) {
-		index = w.data("name");
-	}
-
-	index+= ".html";
-
-
-	if (w.hasClass("inpage")) {
-
-	} else {
-		var a = $("<a></a>")
-			.attr("href", path + index)
-			.html("<img src=\"" + path + "Default.png\" alt=\"Aufgabe öffnen\">");
-
-		a.on("click", function(e) {
-			BOOK.widgetOpen = $(this);
-
-			// check window size
-			if (document.documentElement.clientWidth <= 1024) {
-				//location.href = "./demo/" + cv + ".wdgt/" + cv + ".html";
-				return true;
-			}
-
-			e.stopPropagation();
-			e.preventDefault();
-
-			//load widget into iframe
-			$('#widget').css({display: "block"}).get(0).src = path + index;
-			$('#widgetnew').attr('href', path + index);
-
-			//create clone of the a tag to resize
-			var elem = $(this);
-			var clone = elem.clone().attr("href", "")
-				.addClass("clone")
-				.css({
-					display: "block",
-					position: "absolute",
-					left: elem.offset().left + Math.floor(elem.outerWidth()/2) + "px",
-					top:  elem.offset().top + Math.floor(elem.outerHeight()/2) + "px",
-					width: elem.outerWidth(),
-					transform: "translate(-50%, -50%)",
-					transition: "all 500ms ease-in",
-					zIndex: 102,
-					willChange: "top, left, width",
-				})
-				.appendTo(document.body);
-			elem.css({visibility: "hidden"});
-
-			window.setTimeout(function() {
-				clone.css({
-					top: "calc(" + window.scrollY + "px + 50%)",
-					left: "50%",
-					width: "calc(1024px / 0.9)",
-				});
-				$('#playerShader').addClass("visible");
-			}, 10);
-
-			window.setTimeout(function() {
-				injectCloser();
-				$('#player').addClass("visible");
-				clone.remove();
-
-			}, 750);
-		});
-		w.append(a);
-	}
-});
-
-$('#playerShader').on("click", closePlayer);
-
-function closePlayer(){
-	if (BOOK.widgetOpen == null) return false;
-
-	var elem = BOOK.widgetOpen;
-
-	var endWidth = elem.outerWidth();
-	console.log(endWidth);
-
-	var clone = elem.clone().addClass("clone").attr("href", "")
-		.css({
-			position: "absolute",
-			top: "calc(" + window.scrollY + "px + 50%)",
-			left: "50%",
-			width: "1024px",
-			transform: "translate(-50%, -50%)",
-			transition: "all 500ms ease-in",
-			visibility: "visible",
-			zIndex: 102,
-		})
-		.appendTo(document.body);
-
-	$('#player').removeClass("visible");
-
-	window.setTimeout(function() {
-		clone.css({
-			left: elem.offset().left + Math.floor(endWidth/2) + "px",
-			top:  elem.offset().top + Math.floor(elem.outerHeight()/2) + "px",
-			width: endWidth + "px",
-		});
-		$('#playerShader').removeClass("visible");
-	}, 10);
-
-	window.setTimeout(function() {
-		elem.css({visibility: "visible"});
-		clone.remove();
-		BOOK.widgetOpen = null;
-	}, 550);
-}
-function injectCloser(){
-	var i = $('<i></i>')
-		.css({
-			"display": "block",
-			"position": "absolute",
-			"right": "11px",
-			"top": "11px",
-
-			"width": "20px",
-			"height": "20px",
-			"background": "url('img/close.png') center center/12px 12px no-repeat #000",
-			"border": "1px solid #fff",
-			"border-radius": "100%",
-
-			"-webkit-tap-highlight-color": "transparent",
-		});
-
-	var closer = $('<div id="playerCloser"></div>')
-		.css({
-			"position": "fixed",
-			"width": "44px",
-			"padding-left": "5px",
-			"height": "44px",
-			"top": "0",
-			"left": "0",
-			"z-index": "100",
-		})
-		.append(i)
-		.click(closePlayer);
-	try{
-		$('#widget').contents().find("body").css("cursor", "pointer").append(closer);
-	} catch(e) {
-
-	}
-}
-// }}}
-
-setHeader();
-renderMathInElement(document.getElementById('pages'))
-</script>
-</body>
+  <script>
+      $("#flipbook").turn({
+        acceleration: true,
+        autoCenter: false,
+        direction: "ltr",
+        display: "double",
+        duration: 600,
+        gradients: true,
+        height: 600,
+        elevation: 50,
+        page: 1,
+        turnCorners: "bl,br",
+        width: 1000,
+      });
+  </script>
 </html>
