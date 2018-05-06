@@ -19,14 +19,12 @@
 [Lizenzgebühren (99 $)](http://www.turnjs.com/get)
 
 ### +
-*
-*
-*
+* funktioniert :)
+* solides optisches Ergebnis
+* sehr viele Möglichkeiten
 
 ### -
-*
-*
-*
+* sehr viel muss von Hand von scratch gebaut werden (Resoponsive Design, Lazy Loading, usw.)
 
 ---
 
@@ -36,11 +34,7 @@
 [Lizenzgebühren (25 $)](https://codecanyon.net/item/wowbook-a-flipbook-jquery-plugin/1791563)
 
 ### +
-*
-*
-*
+* ...
 
 ### -
-*
-*
-*
+* optisch nicht überzeugend
